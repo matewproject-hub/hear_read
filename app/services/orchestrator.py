@@ -35,7 +35,10 @@ async def process_document_ocr_pipeline(doc_id: int, db: Session):
                 document_id=doc.id,
                 content=block_data['content'],
                 page_number=block_data['page_number'],
-                sequence_index=block_data['sequence_index']
+                sequence_index=block_data['sequence_index'],
+                coordinates=block_data['coordinates'],
+                page_width=block_data.get('page_width'),
+                page_height=block_data.get('page_height')
             )
             db.add(new_block)
         

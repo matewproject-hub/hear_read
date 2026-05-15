@@ -30,13 +30,10 @@ async def stream_audio_for_block(
         raise HTTPException(status_code=400, detail="Text block is empty")
 
     try:
-        # 2. Generate audio samples using Kokoro
-        # Note: tts_service.kokoro is the underlying kokoro-onnx instance
-        samples, sample_rate = tts_service.kokoro.create(
+        # 2. Generate sanitized audio samples
+        samples, sample_rate = tts_service.create_audio(
             block.content, 
-            voice=voice, 
-            speed=1.0, 
-            lang="en-us"
+            voice=voice
         )
         
         # 3. Convert samples to WAV format in an in-memory buffer
@@ -50,6 +47,35 @@ async def stream_audio_for_block(
             media_type="audio/wav",
             headers={"Content-Disposition": f"attachment; filename=block_{block_id}.wav"}
         )
+        
+    except Exception as e:
+        print(f"❌ Streaming error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Audio generation failed: {str(e)}")
+from pydantic import BaseModel
+
+class TTSRequest(BaseModel):
+    text: str
+    voice: str = "af_bella"
+
+@router.post("/text")
+async def stream_audio_from_text(request: TTSRequest):
+    """
+    Generates audio on-the-fly for arbitrary text and streams it back.
+    """
+    if not request.text.strip():
+        raise HTTPException(status_code=400, detail="Text is empty")
+
+    try:
+        samples, sample_rate = tts_service.create_audio(
+            request.text, 
+            voice=request.voice
+        )
+        
+        buffer = io.BytesIO()
+        sf.write(buffer, samples, sample_rate, format='wav')
+        buffer.seek(0)
+        
+        return StreamingResponse(buffer, media_type="audio/wav")
         
     except Exception as e:
         print(f"❌ Streaming error: {str(e)}")

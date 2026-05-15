@@ -39,10 +39,16 @@ class OCRService:
         all_blocks = []
         for i, page_image in enumerate(pages):
             print(f"   Processing Page {i+1}/{len(pages)}...")
+            width, height = page_image.size
             open_cv_image = np.array(page_image)
             open_cv_image = cv2.cvtColor(open_cv_image, cv2.COLOR_RGB2BGR)
             
             page_blocks = self._process_numpy_image(open_cv_image, page_num=i+1)
+            # Add page dimensions to each block for client-side scaling
+            for block in page_blocks:
+                block["page_width"] = width
+                block["page_height"] = height
+                
             all_blocks.extend(page_blocks)
             
         return all_blocks
