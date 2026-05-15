@@ -1,0 +1,623 @@
+[
+    {
+        "content": "WORKSPACES",
+        "coordinates": [
+            [
+                8.0,
+                6.0
+            ],
+            [
+                98.0,
+                6.0
+            ],
+            [
+                98.0,
+                26.0
+            ],
+            [
+                8.0,
+                26.0
+            ]
+        ],
+        "sequence_index": 0,
+        "confidence": 1.0
+    },
+    {
+        "content": "APPLICATIONS",
+        "coordinates": [
+            [
+                114.0,
+                6.0
+            ],
+            [
+                202.0,
+                6.0
+            ],
+            [
+                202.0,
+                26.0
+            ],
+            [
+                114.0,
+                26.0
+            ]
+        ],
+        "sequence_index": 1,
+        "confidence": 1.0
+    },
+    {
+        "content": "APR 30 6.49 PM",
+        "coordinates": [
+            [
+                906.0,
+                6.0
+            ],
+            [
+                1012.0,
+                6.0
+            ],
+            [
+                1012.0,
+                28.0
+            ],
+            [
+                906.0,
+                28.0
+            ]
+        ],
+        "sequence_index": 2,
+        "confidence": 1.0
+    },
+    {
+        "content": "(+)",
+        "coordinates": [
+            [
+                1888.0,
+                12.0
+            ],
+            [
+                1900.0,
+                12.0
+            ],
+            [
+                1900.0,
+                22.0
+            ],
+            [
+                1888.0,
+                22.0
+            ]
+        ],
+        "sequence_index": 3,
+        "confidence": 1.0
+    },
+    {
+        "content": "PROMTED",
+        "coordinates": [
+            [
+                54.0,
+                44.0
+            ],
+            [
+                132.0,
+                44.0
+            ],
+            [
+                132.0,
+                64.0
+            ],
+            [
+                54.0,
+                64.0
+            ]
+        ],
+        "sequence_index": 4,
+        "confidence": 1.0
+    },
+    {
+        "content": "+ + C",
+        "coordinates": [
+            [
+                46.0,
+                85.0
+            ],
+            [
+                144.0,
+                85.0
+            ],
+            [
+                144.0,
+                107.0
+            ],
+            [
+                46.0,
+                107.0
+            ]
+        ],
+        "sequence_index": 5,
+        "confidence": 1.0
+    },
+    {
+        "content": "O DINTP://DOCALHOSES173/ADMIN",
+        "coordinates": [
+            [
+                268.0,
+                83.0
+            ],
+            [
+                508.0,
+                83.0
+            ],
+            [
+                508.0,
+                109.0
+            ],
+            [
+                268.0,
+                109.0
+            ]
+        ],
+        "sequence_index": 6,
+        "confidence": 1.0
+    },
+    {
+        "content": "0",
+        "coordinates": [
+            [
+                1662.0,
+                83.0
+            ],
+            [
+                1688.0,
+                83.0
+            ],
+            [
+                1688.0,
+                111.0
+            ],
+            [
+                1662.0,
+                111.0
+            ]
+        ],
+        "sequence_index": 7,
+        "confidence": 1.0
+    },
+    {
+        "content": "E",
+        "coordinates": [
+            [
+                1884.0,
+                87.0
+            ],
+            [
+                1904.0,
+                87.0
+            ],
+            [
+                1904.0,
+                105.0
+            ],
+            [
+                1884.0,
+                105.0
+            ]
+        ],
+        "sequence_index": 8,
+        "confidence": 1.0
+    },
+    {
+        "content": "AUTOCRED ADMIN.",
+        "coordinates": [
+            [
+                32.0,
+                141.0
+            ],
+            [
+                194.0,
+                141.0
+            ],
+            [
+                194.0,
+                161.0
+            ],
+            [
+                32.0,
+                161.0
+            ]
+        ],
+        "sequence_index": 9,
+        "confidence": 1.0
+    },
+    {
+        "content": "< BACK",
+        "coordinates": [
+            [
+                1712.0,
+                141.0
+            ],
+            [
+                1770.0,
+                141.0
+            ],
+            [
+                1770.0,
+                163.0
+            ],
+            [
+                1712.0,
+                163.0
+            ]
+        ],
+        "sequence_index": 10,
+        "confidence": 1.0
+    },
+    {
+        "content": "LOGOUT",
+        "coordinates": [
+            [
+                1822.0,
+                141.0
+            ],
+            [
+                1874.0,
+                141.0
+            ],
+            [
+                1874.0,
+                163.0
+            ],
+            [
+                1822.0,
+                163.0
+            ]
+        ],
+        "sequence_index": 11,
+        "confidence": 1.0
+    },
+    {
+        "content": "STENY THANKKAM RAJU",
+        "coordinates": [
+            [
+                390.0,
+                218.0
+            ],
+            [
+                626.0,
+                218.0
+            ],
+            [
+                626.0,
+                246.0
+            ],
+            [
+                390.0,
+                246.0
+            ]
+        ],
+        "sequence_index": 12,
+        "confidence": 1.0
+    },
+    {
+        "content": "CS : 20223-2017 - MGP23CS045",
+        "coordinates": [
+            [
+                390.0,
+                248.0
+            ],
+            [
+                596.0,
+                248.0
+            ],
+            [
+                596.0,
+                268.0
+            ],
+            [
+                390.0,
+                268.0
+            ]
+        ],
+        "sequence_index": 13,
+        "confidence": 1.0
+    },
+    {
+        "content": "CERTIFICATE STATUS",
+        "coordinates": [
+            [
+                416.0,
+                322.0
+            ],
+            [
+                606.0,
+                322.0
+            ],
+            [
+                606.0,
+                347.0
+            ],
+            [
+                416.0,
+                347.0
+            ]
+        ],
+        "sequence_index": 14,
+        "confidence": 1.0
+    },
+    {
+        "content": "CERTIFICATE NAME",
+        "coordinates": [
+            [
+                430.0,
+                383.0
+            ],
+            [
+                560.0,
+                383.0
+            ],
+            [
+                560.0,
+                403.0
+            ],
+            [
+                430.0,
+                403.0
+            ]
+        ],
+        "sequence_index": 15,
+        "confidence": 1.0
+    },
+    {
+        "content": "TYPE",
+        "coordinates": [
+            [
+                734.0,
+                381.0
+            ],
+            [
+                774.0,
+                381.0
+            ],
+            [
+                774.0,
+                405.0
+            ],
+            [
+                734.0,
+                405.0
+            ]
+        ],
+        "sequence_index": 16,
+        "confidence": 1.0
+    },
+    {
+        "content": "VERIFICATION STATUS",
+        "coordinates": [
+            [
+                856.0,
+                383.0
+            ],
+            [
+                1004.0,
+                383.0
+            ],
+            [
+                1004.0,
+                403.0
+            ],
+            [
+                856.0,
+                403.0
+            ]
+        ],
+        "sequence_index": 17,
+        "confidence": 1.0
+    },
+    {
+        "content": "ACTIVITY POINTS",
+        "coordinates": [
+            [
+                1136.0,
+                383.0
+            ],
+            [
+                1254.0,
+                383.0
+            ],
+            [
+                1254.0,
+                403.0
+            ],
+            [
+                1136.0,
+                403.0
+            ]
+        ],
+        "sequence_index": 18,
+        "confidence": 1.0
+    },
+    {
+        "content": "ACTION",
+        "coordinates": [
+            [
+                1364.0,
+                381.0
+            ],
+            [
+                1420.0,
+                381.0
+            ],
+            [
+                1420.0,
+                403.0
+            ],
+            [
+                1364.0,
+                403.0
+            ]
+        ],
+        "sequence_index": 19,
+        "confidence": 1.0
+    },
+    {
+        "content": "DOC-20260210-WA0063",
+        "coordinates": [
+            [
+                430.0,
+                445.0
+            ],
+            [
+                598.0,
+                445.0
+            ],
+            [
+                598.0,
+                465.0
+            ],
+            [
+                430.0,
+                465.0
+            ]
+        ],
+        "sequence_index": 20,
+        "confidence": 1.0
+    },
+    {
+        "content": "NPTEL",
+        "coordinates": [
+            [
+                734.0,
+                445.0
+            ],
+            [
+                784.0,
+                445.0
+            ],
+            [
+                784.0,
+                467.0
+            ],
+            [
+                734.0,
+                467.0
+            ]
+        ],
+        "sequence_index": 21,
+        "confidence": 1.0
+    },
+    {
+        "content": "VALID",
+        "coordinates": [
+            [
+                864.0,
+                443.0
+            ],
+            [
+                904.0,
+                443.0
+            ],
+            [
+                904.0,
+                465.0
+            ],
+            [
+                864.0,
+                465.0
+            ]
+        ],
+        "sequence_index": 22,
+        "confidence": 1.0
+    },
+    {
+        "content": "15",
+        "coordinates": [
+            [
+                1136.0,
+                445.0
+            ],
+            [
+                1154.0,
+                445.0
+            ],
+            [
+                1154.0,
+                465.0
+            ],
+            [
+                1136.0,
+                465.0
+            ]
+        ],
+        "sequence_index": 23,
+        "confidence": 1.0
+    },
+    {
+        "content": "@ VIEW",
+        "coordinates": [
+            [
+                1374.0,
+                441.0
+            ],
+            [
+                1428.0,
+                441.0
+            ],
+            [
+                1428.0,
+                463.0
+            ],
+            [
+                1374.0,
+                463.0
+            ]
+        ],
+        "sequence_index": 24,
+        "confidence": 1.0
+    },
+    {
+        "content": "O",
+        "coordinates": [
+            [
+                680.0,
+                1026.0
+            ],
+            [
+                724.0,
+                1026.0
+            ],
+            [
+                724.0,
+                1060.0
+            ],
+            [
+                680.0,
+                1060.0
+            ]
+        ],
+        "sequence_index": 25,
+        "confidence": 1.0
+    },
+    {
+        "content": "8",
+        "coordinates": [
+            [
+                1136.0,
+                1034.0
+            ],
+            [
+                1160.0,
+                1034.0
+            ],
+            [
+                1160.0,
+                1050.0
+            ],
+            [
+                1136.0,
+                1050.0
+            ]
+        ],
+        "sequence_index": 26,
+        "confidence": 1.0
+    }
+]
