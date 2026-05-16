@@ -1,0 +1,404 @@
+body {
+  margin: 0;
+  background: #0f172a;
+  color: white;
+  font-family: Inter, sans-serif;
+  overflow: hidden;
+}
+
+
+/* =========================================
+   TOP BAR
+========================================= */
+
+.topbar {
+
+  height: 72px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 0 24px;
+
+  background: #111827;
+
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 1000;
+}
+
+.topbar h1 {
+
+  margin: 0;
+
+  font-size: 22px;
+
+  font-weight: 700;
+}
+
+
+/* =========================================
+   MAIN APP LAYOUT
+========================================= */
+
+.appLayout {
+
+  display: flex;
+
+  height: calc(100vh - 72px);
+
+  overflow: hidden;
+}
+
+
+/* =========================================
+   PDF PANEL
+========================================= */
+
+.pdfPanel {
+
+  width: 45%;
+
+  overflow-y: auto;
+
+  background: #111827;
+
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+#viewer {
+
+  padding: 24px;
+
+  padding-bottom: 140px;
+}
+
+.page {
+
+  position: relative;
+
+  margin-bottom: 40px;
+
+  display: flex;
+
+  justify-content: center;
+}
+
+.page canvas {
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.4);
+}
+
+
+/* =========================================
+   OCR OVERLAYS
+========================================= */
+
+.textBlock {
+
+  position: absolute;
+
+  cursor: pointer;
+
+  border-radius: 6px;
+
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.textBlock:hover {
+
+  background: rgba(99,102,241,0.14);
+
+  box-shadow:
+    0 0 0 1px rgba(129,140,248,0.35);
+}
+
+.textBlock.active {
+
+  background: rgba(99,102,241,0.30);
+
+  box-shadow:
+    0 0 0 2px #818cf8,
+    0 0 18px rgba(129,140,248,0.35);
+
+  transform: scale(1.01);
+}
+
+
+/* =========================================
+   TRANSCRIPT PANEL
+========================================= */
+
+.readerPanel {
+
+  width: 55%;
+
+  background: #0f172a;
+
+  overflow: hidden;
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+.readerHeader {
+
+  padding: 20px 24px;
+
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+
+  font-size: 18px;
+
+  font-weight: 600;
+
+  color: #cbd5e1;
+}
+
+#transcriptPanel {
+
+  flex: 1;
+
+  overflow-y: auto;
+
+  padding: 32px;
+
+  padding-bottom: 160px;
+}
+
+
+/* =========================================
+   TRANSCRIPT LINES
+========================================= */
+
+.transcriptLine {
+
+  font-size: 22px;
+
+  line-height: 1.8;
+
+  padding: 18px 20px;
+
+  margin-bottom: 14px;
+
+  border-radius: 18px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+
+  opacity: 0.72;
+
+  color: #e2e8f0;
+}
+
+.transcriptLine:hover {
+
+  background: rgba(255,255,255,0.05);
+
+  opacity: 1;
+}
+
+.transcriptLine.active {
+
+  background: linear-gradient(
+    135deg,
+    #4f46e5,
+    #6366f1
+  );
+
+  opacity: 1;
+
+  transform: scale(1.015);
+
+  box-shadow:
+    0 8px 30px rgba(79,70,229,0.35);
+
+  color: white;
+}
+
+
+/* =========================================
+   PLAYER BAR
+========================================= */
+
+#player {
+
+  position: fixed;
+
+  bottom: 24px;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: min(900px, 90vw);
+
+  background: rgba(17,24,39,0.88);
+
+  backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  border-radius: 24px;
+
+  padding: 16px 22px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  z-index: 99999;
+
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.35);
+}
+
+
+/* =========================================
+   CONTROL BUTTONS
+========================================= */
+
+.controlBtn {
+
+  width: 46px;
+
+  height: 46px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: #4f46e5;
+
+  color: white;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    background 0.2s ease;
+}
+
+.controlBtn:hover {
+
+  background: #6366f1;
+
+  transform: translateY(-1px);
+}
+
+.controlBtn:active {
+
+  transform: scale(0.97);
+}
+
+
+/* =========================================
+   SPEED CONTROL
+========================================= */
+
+#speedControl {
+
+  height: 42px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  padding: 0 12px;
+
+  background: #1e293b;
+
+  color: white;
+
+  font-size: 14px;
+
+  outline: none;
+}
+
+
+/* =========================================
+   CURRENT TEXT
+========================================= */
+
+#currentText {
+
+  flex: 1;
+
+  color: #cbd5e1;
+
+  font-size: 15px;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.emptyState {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  height: 100%;
+
+  color: #64748b;
+
+  font-size: 18px;
+}
+
+
+/* =========================================
+   SCROLLBAR
+========================================= */
+
+::-webkit-scrollbar {
+
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+
+  background: rgba(255,255,255,0.12);
+
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+
+  background: rgba(255,255,255,0.2);
+}

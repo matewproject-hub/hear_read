@@ -1,57 +1,24 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environment
-venv/
-.venv/
-ENV/
-
-# Secrets
+# Environment — never commit real credentials
 .env
 
-# IDEs
+# Large model files — download separately (see README)
+*.onnx
+voices.json
+
+# Uploaded documents and generated audio
+uploads/
+audio/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# App specific
-/static/
-/media/
-/uploads/
-/output/
-
-# AI Models & Large Binaries
-*.onnx
-*.pth
-*.bin
-*.pt
-*.model
-.paddleocr/
-inference/
-*.wav
-*.mp3

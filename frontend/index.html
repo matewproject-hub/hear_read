@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <title>HearRead</title>
+
+  <link rel="stylesheet" href="/static/styles.css">
+
+  <link rel="icon" href="data:,">
+
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+
+  <div class="topbar">
+
+    <input
+      type="file"
+      id="pdfUpload"
+      accept=".pdf"
+    >
+
+  </div>
+
+
+  <!-- MAIN APP LAYOUT -->
+
+  <div class="appLayout">
+
+    <!-- LEFT SIDE -->
+
+    <div class="pdfPanel">
+
+      <div id="viewer"></div>
+
+    </div>
+
+
+    <!-- RIGHT SIDE -->
+
+    <div class="readerPanel">
+
+      <div id="transcriptPanel">
+
+        <div class="emptyState">
+
+          Upload a PDF to begin reading
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- FLOATING PLAYER -->
+
+  <div id="player">
+
+    <button id="prevBtn" class="controlBtn">
+
+      ⏮
+
+    </button>
+
+    <button id="pauseBtn" class="controlBtn">
+
+      ⏯
+
+    </button>
+
+    <button id="nextBtn" class="controlBtn">
+
+      ⏭
+
+    </button>
+
+
+    <select id="speedControl">
+
+      <option value="1">
+
+        1x
+
+      </option>
+
+      <option value="1.25">
+
+        1.25x
+
+      </option>
+
+      <option value="1.5">
+
+        1.5x
+
+      </option>
+
+      <option value="2">
+
+        2x
+
+      </option>
+
+    </select>
+
+
+    
+  </div>
+
+
+  <script
+    type="module"
+    src="/static/app.js"
+  ></script>
+
+</body>
+
+</html>

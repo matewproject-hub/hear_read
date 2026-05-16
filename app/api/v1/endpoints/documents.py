@@ -1,75 +1,125 @@
-from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, BackgroundTasks
-from sqlalchemy.orm import Session
-from app.db.session import get_db
-from app.models.document import Document, DocStatus
-from app.services.storage import StorageService
-from app.services.orchestrator import process_document_ocr_pipeline
-import uuid
 import os
+import shutil
+import uuid
+
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+from sqlalchemy.orm import Session
+
+from app.db.session import SessionLocal
+from app.models.document import Document
+from app.models.text_block import TextBlock
 
 router = APIRouter()
 
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
 @router.post("/upload")
 async def upload_document(
-    background_tasks: BackgroundTasks,
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    request: Request,
+    file: UploadFile = File(...)
 ):
-    """
-    Uploads a document, saves it locally for processing, and triggers the OCR pipeline.
-    """
-    # 1. Generate unique path
-    file_ext = file.filename.split(".")[-1]
-    unique_filename = f"{uuid.uuid4()}.{file_ext}"
-    storage_path = f"uploads/{unique_filename}"
-    
-    # 2. Read content
-    content = await file.read()
-    
-    # 3. Save locally for OCR processing
-    os.makedirs("uploads", exist_ok=True)
-    local_path = f"uploads/{unique_filename}"
-    with open(local_path, "wb") as f:
-        f.write(content)
-    
-    # 4. Upload to Supabase Storage (Optional/Async-safe)
-    # If this fails, we still have the local file for OCR processing
-    storage_success = StorageService.upload_file("documents", storage_path, content)
-    if not storage_success:
-        print("⚠️ Warning: Supabase storage upload failed, but proceeding with local OCR.")
-    
-    # 5. Create DB record
-    new_doc = Document(
-        filename=file.filename,
-        storage_path=storage_path,
-        status=DocStatus.PENDING
+
+    db: Session = SessionLocal()
+
+    ext = file.filename.split(".")[-1]
+
+    filename = f"{uuid.uuid4()}.{ext}"
+
+    filepath = os.path.join(UPLOAD_DIR, filename)
+
+    with open(filepath, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    doc = Document(
+        filename=filename,
+        original_name=file.filename,
+        storage_path=filepath,
+        status="processing"
     )
-    db.add(new_doc)
+
+    db.add(doc)
     db.commit()
-    db.refresh(new_doc)
-    
-    # 6. Trigger background OCR processing
-    background_tasks.add_task(process_document_ocr_pipeline, new_doc.id, db)
-    
+    db.refresh(doc)
+
+    try:
+
+        ocr_service = request.app.state.ocr_service
+
+        blocks = ocr_service.process_file(filepath)
+
+        for block in blocks:
+
+            db.add(TextBlock(
+                document_id=doc.id,
+                content=block["content"],
+                coordinates=block["coordinates"],
+                page=block["page"],
+                sequence_index=block["sequence_index"]
+            ))
+
+        doc.status = "completed"
+
+        db.commit()
+
+    except Exception as e:
+
+        doc.status = "failed"
+
+        db.commit()
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
     return {
-        "id": new_doc.id, 
-        "filename": new_doc.filename, 
-        "status": "processing",
-        "detail": "Document upload successful. OCR processing started in background."
+        "id": doc.id,
+        "status": doc.status
     }
 
-@router.get("/")
-async def list_documents(db: Session = Depends(get_db)):
-    """
-    Lists all documents and their processing status.
-    """
-    return db.query(Document).all()
+
+@router.get("/{doc_id}")
+def get_document(doc_id: int):
+
+    db: Session = SessionLocal()
+
+    doc = (
+        db.query(Document)
+        .filter(Document.id == doc_id)
+        .first()
+    )
+
+    if not doc:
+        raise HTTPException(status_code=404)
+
+    return {
+        "id": doc.id,
+        "status": doc.status,
+        "filename": doc.filename,
+        "original_name": doc.original_name
+    }
+
 
 @router.get("/{doc_id}/blocks")
-async def get_document_blocks(doc_id: int, db: Session = Depends(get_db)):
-    """
-    Returns the extracted text blocks for a specific document.
-    """
-    from app.models.text_block import TextBlock
-    blocks = db.query(TextBlock).filter(TextBlock.document_id == doc_id).order_by(TextBlock.sequence_index).all()
-    return blocks
+def get_document_blocks(doc_id: int):
+
+    db: Session = SessionLocal()
+
+    blocks = (
+        db.query(TextBlock)
+        .filter(TextBlock.document_id == doc_id)
+        .order_by(TextBlock.sequence_index)
+        .all()
+    )
+
+    return [
+        {
+            "id": block.id,
+            "content": block.content,
+            "page": block.page,
+            "sequence_index": block.sequence_index
+        }
+        for block in blocks
+    ]
