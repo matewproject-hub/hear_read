@@ -1,6 +1,12 @@
 const API = "http://localhost:8000/api/v1";
 
-const uploadInput = document.getElementById("pdfUpload");
+// =====================================
+// ELEMENTS
+// =====================================
+
+const uploadInput =
+  document.getElementById("pdfUpload");
+
 const pauseBtn =
   document.getElementById("pauseBtn");
 
@@ -10,15 +16,74 @@ const prevBtn =
 const nextBtn =
   document.getElementById("nextBtn");
 
-const currentText = document.getElementById("currentText");
 const speedControl =
   document.getElementById("speedControl");
 
-const viewer = document.getElementById("viewer");
+const viewer =
+  document.getElementById("viewer");
+
 const transcriptPanel =
   document.getElementById("transcriptPanel");
 
-// Speed Control
+// =====================================
+// GLOBAL STATE
+// =====================================
+
+let blocks = [];
+
+let blockTimings = [];
+
+let currentIndex = 0;
+
+let currentDocId = null;
+
+let documentAudioLoaded = false;
+
+const audio = new Audio();
+
+audio.crossOrigin = "anonymous";
+
+// =====================================
+// AUDIO EVENTS
+// =====================================
+
+console.log(audio);
+
+audio.addEventListener("play", () => {
+
+  console.log("Audio started");
+
+});
+
+audio.addEventListener("pause", () => {
+
+  console.log("Audio paused");
+
+});
+
+audio.addEventListener("ended", () => {
+
+  console.log("Audio ended");
+
+  pauseBtn.innerText = "▶";
+
+});
+
+audio.addEventListener("timeupdate", () => {
+
+  updateHighlightByTime();
+
+});
+
+audio.addEventListener("error", (e) => {
+
+  console.error("Audio error:", e);
+
+});
+
+// =====================================
+// SPEED CONTROL
+// =====================================
 
 speedControl.addEventListener("change", () => {
 
@@ -28,286 +93,372 @@ speedControl.addEventListener("change", () => {
 });
 
 // =====================================
-// GLOBAL STATE
-// =====================================
-
-let blocks = [];
-let currentIndex = 0;
-
-const audio = new Audio();
-
-
-audio.addEventListener("play", () => {
-  console.log("Audio started");
-});
-
-audio.addEventListener("pause", () => {
-  console.log("Audio paused");
-});
-
-audio.addEventListener("ended", () => {
-  console.log("Audio ended");
-});
-
-audio.addEventListener("error", (e) => {
-  console.error("Audio error:", e);
-});
-
-// =====================================
-// AUTO PLAY NEXT BLOCK
-// =====================================
-
-audio.onended = async () => {
-
-  currentIndex++;
-
-  if (currentIndex >= blocks.length) {
-
-    pauseBtn.innerText = "▶";
-
-    currentIndex = 0;
-
-    return;
-  }
-
-  await playBlock(blocks[currentIndex]);
-
-};
-audio.crossOrigin = "anonymous";
-
-let isPlaying = false;
-
-
-// =====================================
-// AUDIO AUTO NEXT
-// =====================================
-
-audio.onended = async () => {
-
-  try {
-
-    currentIndex++;
-
-    // Finished document
-
-    if (currentIndex >= blocks.length) {
-
-      currentIndex = 0;
-
-      isPlaying = false;
-
-      pauseBtn.innerText = "▶";
-
-      
-
-      return;
-    }
-
-    await playBlock(blocks[currentIndex]);
-
-  } catch (err) {
-
-    console.error("AUTO NEXT ERROR:", err);
-
-  }
-
-};
-
-
-// =====================================
 // PDF UPLOAD
 // =====================================
 
-uploadInput.addEventListener("change", async (e) => {
+uploadInput.addEventListener(
+  "change",
+  async (e) => {
 
-  const file = e.target.files[0];
+    const file = e.target.files[0];
 
-  if (!file) return;
+    if (!file) return;
 
-  // PDF validation
+    if (file.type !== "application/pdf") {
 
-  if (file.type !== "application/pdf") {
-
-    alert("Only PDF files are allowed.");
-
-    return;
-  }
-
-  // Reset state
-
-  audio.pause();
-
-  
-
-  blocks = [];
-
-  currentIndex = 0;
-
-  isPlaying = false;
-
-  pauseBtn.innerText = "⏸";
-
-  // Loading UI
-
-  viewer.innerHTML = `
-    <div style="
-      padding:60px;
-      text-align:center;
-      color:#cbd5e1;
-      font-size:18px;
-    ">
-      Uploading PDF...
-    </div>
-  `;
-
-
-  try {
-
-    const formData = new FormData();
-
-    formData.append("file", file);
-
-    const uploadResp = await fetch(
-      `${API}/documents/upload`,
-      {
-        method: "POST",
-        body: formData
-      }
-    );
-
-    // Upload failed
-
-    if (!uploadResp.ok) {
-
-      const errorText =
-        await uploadResp.text();
-
-      console.error(errorText);
-
-      alert("Upload failed");
-
-    
+      alert("Only PDF allowed");
 
       return;
+
     }
 
-    const uploadData =
-      await uploadResp.json();
+    // =====================================
+    // RESET STATE
+    // =====================================
 
-    const docId = uploadData.id;
+    audio.pause();
 
-    
+    audio.src = "";
 
-    waitForProcessing(docId);
+    blocks = [];
 
-  } catch (err) {
+    blockTimings = [];
 
-    console.error(err);
+    currentIndex = 0;
 
-    alert("Server connection failed");
+    documentAudioLoaded = false;
 
-    
+    transcriptPanel.innerHTML = "";
+
+    viewer.innerHTML = `
+      <div style="
+        padding:60px;
+        text-align:center;
+        color:white;
+      ">
+        Uploading PDF...
+      </div>
+    `;
+
+    try {
+
+      const formData = new FormData();
+
+      formData.append("file", file);
+
+      const uploadResp = await fetch(
+        `${API}/documents/upload`,
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      if (!uploadResp.ok) {
+
+        const errorText =
+          await uploadResp.text();
+
+        console.error(errorText);
+
+        alert("Upload failed");
+
+        return;
+
+      }
+
+      const uploadData =
+        await uploadResp.json();
+
+      currentDocId = uploadData.id;
+
+      waitForProcessing(currentDocId);
+
+    }
+
+    catch (err) {
+
+      console.error(err);
+
+      alert("Server error");
+
+    }
 
   }
-
-});
-
+);
 
 // =====================================
-// WAIT FOR OCR
+// WAIT FOR OCR + AUDIO
 // =====================================
 
 async function waitForProcessing(docId) {
 
-  const interval = setInterval(async () => {
+  const interval = setInterval(
+    async () => {
+
+      try {
+
+        const resp = await fetch(
+          `${API}/documents/${docId}`
+        );
+
+        if (!resp.ok) return;
+
+        const doc = await resp.json();
+
+        console.log("Document:", doc);
+
+        // =====================================
+        // PROCESSING COMPLETE
+        // =====================================
+
+        if (doc.status === "completed") {
+
+          clearInterval(interval);
+
+          // =========================
+          // LOAD BLOCKS
+          // =========================
+
+          const blockResp = await fetch(
+            `${API}/documents/${docId}/blocks`
+          );
+
+          blocks =
+            await blockResp.json();
+
+          // =========================
+          // LOAD TIMINGS
+          // =========================
+
+          const timingResp = await fetch(
+            `${API}/documents/${docId}/timings`
+          );
+
+          if (timingResp.ok) {
+
+            blockTimings =
+              await timingResp.json();
+
+            console.log(
+              "Timings:",
+              blockTimings
+            );
+
+          }
+
+          // =========================
+          // SORT BLOCKS
+          // =========================
+
+          blocks.sort((a, b) => {
+
+            if (a.page !== b.page) {
+
+              return a.page - b.page;
+
+            }
+
+            return (
+              a.sequence_index -
+              b.sequence_index
+            );
+
+          });
+
+          // =========================
+          // RENDER UI
+          // =========================
+
+          renderReader(blocks);
+
+          renderTranscript(blocks);
+
+          // =========================
+          // LOAD AUDIO
+          // =========================
+
+          await loadDocumentAudio(doc);
+
+        }
+
+        // =====================================
+        // FAILED
+        // =====================================
+
+        if (doc.status === "failed") {
+
+          clearInterval(interval);
+
+          alert("Processing failed");
+
+        }
+
+      }
+
+      catch (err) {
+
+        console.error(err);
+
+      }
+
+    },
+
+    2000
+  );
+
+}
+
+// =====================================
+// LOAD FULL AUDIO
+// =====================================
+
+async function loadDocumentAudio(doc) {
+
+  try {
+
+    if (!doc.audio_path) {
+
+      console.error(
+        "No audio path from backend"
+      );
+
+      return;
+
+    }
+
+    console.log(
+      "Loading audio:",
+      doc.audio_path
+    );
+
+    // reset first
+
+    audio.pause();
+
+    audio.removeAttribute("src");
+
+    audio.load();
+
+    // set actual source
+
+    audio.src = doc.audio_path;
+
+    // wait until browser confirms audio is loaded
+
+    audio.onloadedmetadata = () => {
+
+      console.log(
+        "Audio metadata loaded"
+      );
+
+      console.log(
+        "Duration:",
+        audio.duration
+      );
+
+      documentAudioLoaded = true;
+
+    };
+
+    audio.onerror = (err) => {
+
+      console.error(
+        "AUDIO LOAD FAILED:",
+        err
+      );
+
+      console.log(
+        "Audio src:",
+        audio.src
+      );
+
+    };
+
+    audio.load();
+
+  }
+
+  catch (err) {
+
+    console.error(err);
+
+  }
+
+}
+// =====================================
+// PLAY / PAUSE
+// =====================================
+
+pauseBtn.addEventListener(
+  "click",
+  async () => {
 
     try {
 
-      const resp = await fetch(
-        `${API}/documents/${docId}`
-      );
+      if (!documentAudioLoaded || !audio.src) {
 
-      if (!resp.ok) {
+        console.log("Audio not ready");
+
         return;
-      }
-
-      const doc = await resp.json();
-
-      console.log("Document:", doc);
-
-      // OCR completed
-
-      if (doc.status === "completed") {
-
-        clearInterval(interval);
-
-        
-
-        // Fetch blocks
-
-        const blockResp = await fetch(
-          `${API}/documents/${docId}/blocks`
-        );
-
-        if (!blockResp.ok) {
-
-        
-
-          return;
-        }
-
-        blocks = await blockResp.json();
-
-        renderTranscript(blocks);
-
-        console.log("Blocks:", blocks);
-
-        // Sort properly
-
-        blocks.sort((a, b) => {
-
-          if (a.page !== b.page) {
-            return a.page - b.page;
-          }
-
-          return (
-            a.sequence_index -
-            b.sequence_index
-          );
-
-        });
-
-        renderReader(blocks);
-
-      
 
       }
 
-      // OCR failed
+      if (audio.paused) {
 
-      if (doc.status === "failed") {
+        await audio.play();
 
-        clearInterval(interval);
-
-        
-
-        alert("OCR processing failed");
+        pauseBtn.innerText = "⏸";
 
       }
 
-    } catch (err) {
+      else {
+
+        audio.pause();
+
+        pauseBtn.innerText = "▶";
+
+      }
+
+    }
+
+    catch (err) {
 
       console.error(err);
 
     }
 
-  }, 2000);
-
-}
-
+  }
+);
 
 // =====================================
-// RENDER READER MODE
+// NEXT BUTTON
+// =====================================
+
+nextBtn.addEventListener(
+  "click",
+  () => {
+
+    audio.currentTime += 10;
+
+  }
+);
+
+// =====================================
+// PREV BUTTON
+// =====================================
+
+prevBtn.addEventListener(
+  "click",
+  () => {
+
+    audio.currentTime -= 10;
+
+  }
+);
+
+// =====================================
+// RENDER READER
 // =====================================
 
 function renderReader(blocks) {
@@ -317,28 +468,30 @@ function renderReader(blocks) {
   const reader =
     document.createElement("div");
 
-  reader.className = "readerContainer";
+  reader.className =
+    "readerContainer";
 
   blocks.forEach((block, index) => {
 
     const paragraph =
       document.createElement("div");
 
-    paragraph.className = "readerBlock";
+    paragraph.className =
+      "readerBlock";
 
-    paragraph.dataset.blockId = block.id;
+    paragraph.dataset.blockId =
+      block.id;
 
-    paragraph.innerText = block.content;
-
-    // Click paragraph
+    paragraph.innerText =
+      block.content;
 
     paragraph.addEventListener(
       "click",
-      async () => {
+      () => {
 
         currentIndex = index;
 
-        await playBlock(block);
+        highlightCurrentBlock(block);
 
       }
     );
@@ -351,162 +504,60 @@ function renderReader(blocks) {
 
 }
 
-
 // =====================================
-// PLAY BLOCK
+// RENDER TRANSCRIPT
 // =====================================
 
-async function playBlock(block) {
+function renderTranscript(blocks) {
 
-  try {
+  transcriptPanel.innerHTML = "";
 
-    if (!block) return;
+  blocks.forEach((block, index) => {
 
-    
+    const line =
+      document.createElement("div");
 
-    const audioUrl =
-      `${API}/audio/stream/${block.id}?voice=af_bella`;
+    line.className =
+      "transcriptLine";
 
-    // stop existing audio
+    line.dataset.blockId =
+      block.id;
 
-    audio.pause();
+    line.innerText =
+      block.content;
 
-    // set new source directly
+    line.addEventListener(
+      "click",
+      () => {
 
-    audio.src = audioUrl;
+        currentIndex = index;
 
-    // play audio
+        highlightCurrentBlock(block);
 
-    await audio.play();
-
-    isPlaying = true;
-
-    pauseBtn.innerText = "⏸";
-
-    highlightCurrentBlock(block);
-
-  } catch (err) {
-
-    console.error(
-      "Audio playback error:",
-      err
+      }
     );
 
-  }
+    transcriptPanel.appendChild(line);
+
+  });
 
 }
 
-
 // =====================================
-// PLAY / PAUSE BUTTON
-// =====================================
-
-pauseBtn.addEventListener("click", async () => {
-
-  try {
-
-    // START playback first time
-
-    if (!audio.src && blocks.length > 0) {
-
-      currentIndex = 0;
-
-      await playBlock(blocks[0]);
-
-      return;
-
-    }
-
-    // RESUME
-
-    if (audio.paused) {
-
-      await audio.play();
-
-      pauseBtn.innerText = "⏸";
-
-    }
-
-    // PAUSE
-
-    else {
-
-      audio.pause();
-
-      pauseBtn.innerText = "▶";
-
-    }
-
-  }
-
-  catch (err) {
-
-    console.error(err);
-
-  }
-
-});
-
-nextBtn.addEventListener("click", async () => {
-
-  try {
-
-    if (currentIndex < blocks.length - 1) {
-
-      currentIndex++;
-
-      await playBlock(blocks[currentIndex]);
-
-    }
-
-  }
-
-  catch (err) {
-
-    console.error(err);
-
-  }
-
-});
-
-prevBtn.addEventListener("click", async () => {
-
-  try {
-
-    if (currentIndex > 0) {
-
-      currentIndex--;
-
-      await playBlock(blocks[currentIndex]);
-
-    }
-
-  }
-
-  catch (err) {
-
-    console.error(err);
-
-  }
-
-});
-
-
-// =====================================
-// HIGHLIGHT ACTIVE BLOCK
+// HIGHLIGHT CURRENT BLOCK
 // =====================================
 
 function highlightCurrentBlock(block) {
 
-  // PDF highlights
+  // Reader
 
   document
-    .querySelectorAll(".textBlock")
+    .querySelectorAll(".readerBlock")
     .forEach(el =>
       el.classList.remove("active")
     );
 
-  // Transcript highlights
+  // Transcript
 
   document
     .querySelectorAll(".transcriptLine")
@@ -514,20 +565,27 @@ function highlightCurrentBlock(block) {
       el.classList.remove("active")
     );
 
-  // PDF block
+  // Active Reader Block
 
-  const pdfTarget =
+  const readerTarget =
     document.querySelector(
-      `.textBlock[data-block-id="${block.id}"]`
+      `.readerBlock[data-block-id="${block.id}"]`
     );
 
-  if (pdfTarget) {
+  if (readerTarget) {
 
-    pdfTarget.classList.add("active");
+    readerTarget.classList.add(
+      "active"
+    );
+
+    readerTarget.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
 
   }
 
-  // Transcript block
+  // Active Transcript Block
 
   const transcriptTarget =
     document.querySelector(
@@ -536,7 +594,9 @@ function highlightCurrentBlock(block) {
 
   if (transcriptTarget) {
 
-    transcriptTarget.classList.add("active");
+    transcriptTarget.classList.add(
+      "active"
+    );
 
     transcriptTarget.scrollIntoView({
       behavior: "smooth",
@@ -548,37 +608,31 @@ function highlightCurrentBlock(block) {
 }
 
 // =====================================
-// RENDER TRANSCRIPT PANEL
+// UPDATE HIGHLIGHT BY AUDIO TIME
 // =====================================
 
-function renderTranscript(blocks) {
+function updateHighlightByTime() {
 
-  transcriptPanel.innerHTML = "";
+  if (!blockTimings.length) return;
 
-  blocks.forEach((block, index) => {
+  const currentTime =
+    audio.currentTime;
 
-    const line = document.createElement("div");
+  const activeTiming =
+    blockTimings.find(
+      t =>
+        currentTime >= t.start &&
+        currentTime <= t.end
+    );
 
-    line.className = "transcriptLine";
+  if (!activeTiming) return;
 
-    line.dataset.blockId = block.id;
+  const block = blocks.find(
+    b => b.id === activeTiming.id
+  );
 
-    line.innerText = block.content;
+  if (!block) return;
 
-    // CLICK TO PLAY
-
-    line.addEventListener("click", async () => {
-
-      currentIndex = index;
-
-      highlightCurrentBlock(block);
-
-      await playBlock(block);
-
-    });
-
-    transcriptPanel.appendChild(line);
-
-  });
+  highlightCurrentBlock(block);
 
 }

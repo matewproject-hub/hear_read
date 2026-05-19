@@ -1,32 +1,75 @@
-from supabase import create_client, Client
-from app.core.config import settings
+import os
 
-# Initialize the Supabase client
-supabase: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+from supabase import create_client
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+supabase = create_client(
+    SUPABASE_URL,
+    SUPABASE_KEY
+)
+
 
 class StorageService:
-    @staticmethod
-    def upload_file(bucket_name: str, file_path: str, file_content: bytes):
-        """
-        Uploads a file to a Supabase storage bucket.
-        """
-        try:
-            # Attempt upload
-            res = supabase.storage.from_(bucket_name).upload(
-                path=file_path,
-                file=file_content,
-                file_options={"x-upsert": "true"}
-            )
-            return res
-        except Exception as e:
-            print(f"❌ Storage upload error: {str(e)}")
-            # We return None instead of crashing the whole pipeline
-            # This allows the local OCR to still work if needed
-            return None
 
-    @staticmethod
-    def get_file_url(bucket_name: str, file_path: str):
-        """
-        Generates a public URL for a file in a Supabase bucket.
-        """
-        return supabase.storage.from_(bucket_name).get_public_url(file_path)
+    # =====================================
+    # UPLOAD DOCUMENT
+    # =====================================
+    def upload_document(
+        self,
+        file_path: str,
+        storage_name: str
+    ):
+
+        with open(file_path, "rb") as f:
+
+            pdf_bytes = f.read()
+
+        supabase.storage \
+            .from_("documents") \
+            .upload(
+                path=storage_name,
+                file=pdf_bytes,
+                file_options={
+                    "content-type": "application/pdf",
+                    "upsert": "true"
+                }
+            )
+
+        return supabase.storage \
+            .from_("documents") \
+            .get_public_url(storage_name)
+
+
+    # =====================================
+    # UPLOAD AUDIO
+    # =====================================
+
+    def upload_audio(
+        self,
+        file_path: str,
+        storage_name: str
+    ):
+
+        with open(file_path, "rb") as f:
+
+            audio_bytes = f.read()
+
+        supabase.storage \
+            .from_("audio") \
+            .upload(
+                path=storage_name,
+                file=audio_bytes,
+                file_options={
+                    "content-type": "audio/wav",
+                    "upsert": "true"
+                }
+            )
+
+        return supabase.storage \
+            .from_("audio") \
+            .get_public_url(storage_name)

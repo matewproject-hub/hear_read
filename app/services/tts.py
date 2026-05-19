@@ -1,6 +1,7 @@
 import io
 import re
 import soundfile as sf
+import os
 
 from kokoro_onnx import Kokoro
 
@@ -86,3 +87,74 @@ class TTSService:
         audio_buffer.seek(0)
 
         return audio_buffer
+
+
+    # =========================================
+    # GENERATE FULL DOCUMENT AUDIO FILE
+    # =========================================
+
+    def generate_full_audio(
+        self,
+        text: str,
+        output_path: str,
+        voice: str = "af_bella"
+    ):
+
+        clean_text = self.sanitize_text(text)
+
+        samples, sample_rate = self.kokoro.create(
+            clean_text,
+            voice=voice,
+            speed=1.0,
+            lang="en-us"
+        )
+
+        # create folder if missing
+
+        os.makedirs(
+            os.path.dirname(output_path),
+            exist_ok=True
+        )
+
+        # write wav file
+        sf.write(
+            output_path,
+            samples,
+            sample_rate
+        )
+
+        return output_path
+
+    def generate_block_timings(
+        self,
+        blocks,
+        total_duration
+    ):
+
+        total_chars = sum(
+            len(block["content"])
+            for block in blocks
+        )
+
+        timings = []
+
+        current_time = 0
+
+        for block in blocks:
+
+            ratio = (
+                len(block["content"]) / total_chars
+            )
+
+            duration = ratio * total_duration
+
+            timings.append({
+                "id": block["id"],
+                "start": current_time,
+                "end": current_time + duration
+            })
+
+            current_time += duration
+
+        return timings
+        
